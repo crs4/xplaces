@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>xpOrientation</title>
+         <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        
+       
+
+        <script>
+
+        //main function
+
+
+        function update(a, b, c){
+            //$('#main').html(a);
+
+            var height = $( window ).height();
+            var width = $( window ).width();
+
+
+            var left = ((a / 180  + 0.5) * width)  - 64 ;
+            var top =  ((b / 180  + 0.5) * height)  -64 ;
+
+            $("#content").html(height);
+
+
+            $("#main").css({"top": top+"px", "left": left+"px"}); 
+
+        }
+
+            var network ;
+            $(function() {
+                
+
+                network = new  xpNetwork();
+                
+
+
+            });
+
+
+            function xpReady(){
+                network.publish("XPOrientation", "XP_ORIENTATION");            
+                startDeviceOrientation(network, update);
+                            
+            }
+
+
+
+        </script>
+
+        
+                    
+    </head>
+
+                     
+    <body>
+        <div id='content'></div>
+        <div id='main' style='position:absolute'><img src='img/icons/compass.png'/></div>
+        
+    </body>
+
+</html>

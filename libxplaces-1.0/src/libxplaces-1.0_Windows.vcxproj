@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\Users\Xplaces\Desktop\pthreads2.8\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib,C:\Users\Xplaces\Desktop\pthreads2.8\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\Users\Xplaces\Desktop\pthreads2.8\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib,C:\Users\Xplaces\Desktop\pthreads2.8\lib</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBXPLACES_EXPORTS;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBXPLACES_EXPORTS;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\getopt\XGetopt_demo\XGetopt.cpp" />
+    <ClCompile Include="udp\xpUDPService.cpp" />
+    <ClCompile Include="webserver\xpClientSocket.cpp" />
+    <ClCompile Include="webserver\xpServerSocket.cpp" />
+    <ClCompile Include="webserver\xpSocket.cpp" />
+    <ClCompile Include="xpAction.cpp" />
+    <ClCompile Include="xpAddress.cpp" />
+    <ClCompile Include="xpAliveAction.cpp" />
+    <ClCompile Include="xpAliveEvent.cpp" />
+    <ClCompile Include="xpAnnounceItem.cpp" />
+    <ClCompile Include="xpApplication.cpp" />
+    <ClCompile Include="xpDescriptor.cpp" />
+    <ClCompile Include="xpDescriptorList.cpp" />
+    <ClCompile Include="xpDevice.cpp" />
+    <ClCompile Include="xpDeviceImpl.cpp" />
+    <ClCompile Include="xpDeviceProxy.cpp" />
+    <ClCompile Include="xpDeviceState.cpp" />
+    <ClCompile Include="xpEvent.cpp" />
+    <ClCompile Include="xpEventListener.cpp" />
+    <ClCompile Include="xpEventListenerImpl.cpp" />
+    <ClCompile Include="xpEventListenerProxy.cpp" />
+    <ClCompile Include="xpInitParameters.cpp" />
+    <ClCompile Include="xpMessage.cpp" />
+    <ClCompile Include="xpNetwork.cpp" />
+    <ClCompile Include="xpNode.cpp" />
+    <ClCompile Include="xpProperty.cpp" />
+    <ClCompile Include="xpPropertyList.cpp" />
+    <ClCompile Include="xpToolSet.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\getopt\XGetopt_demo\XGetopt.h" />
+    <ClInclude Include="udp\xpUDPService.h" />
+    <ClInclude Include="webserver\xpClientSocket.h" />
+    <ClInclude Include="webserver\xpServerSocket.h" />
+    <ClInclude Include="webserver\xpSocket.h" />
+    <ClInclude Include="webserver\xpSocketException.h" />
+    <ClInclude Include="xpAction.h" />
+    <ClInclude Include="xpAddress.h" />
+    <ClInclude Include="xpAliveAction.h" />
+    <ClInclude Include="xpAliveEvent.h" />
+    <ClInclude Include="xpAnnounceItem.h" />
+    <ClInclude Include="xpApplication.h" />
+    <ClInclude Include="xpDescriptor.h" />
+    <ClInclude Include="xpDescriptorList.h" />
+    <ClInclude Include="xpDevice.h" />
+    <ClInclude Include="xpDeviceImpl.h" />
+    <ClInclude Include="xpDeviceProxy.h" />
+    <ClInclude Include="xpDeviceState.h" />
+    <ClInclude Include="xpEvent.h" />
+    <ClInclude Include="xpEventListener.h" />
+    <ClInclude Include="xpEventListenerImpl.h" />
+    <ClInclude Include="xpEventListenerProxy.h" />
+    <ClInclude Include="xpInitParameters.h" />
+    <ClInclude Include="xplaces.h" />
+    <ClInclude Include="xpMessage.h" />
+    <ClInclude Include="xpNetwork.h" />
+    <ClInclude Include="xpNode.h" />
+    <ClInclude Include="xpProperty.h" />
+    <ClInclude Include="xpPropertyList.h" />
+    <ClInclude Include="xpToolSet.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

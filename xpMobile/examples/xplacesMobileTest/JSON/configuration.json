@@ -1,0 +1,16 @@
+{
+	"netconf": {
+		"basePort": 4500,
+        	"serverIPPort" : "http://156.148.36.80:4550",
+		"localIP" : "156.148.36.80",
+        	"httpPort" : 8080
+	},
+	"args": {
+		"verbose" : true
+    },
+    "proxy": {
+	"name": "Proxy_area_1",
+        "forward": true,
+        "proxyIPPort": "ws://156.148.37.190:8080"
+    }
+}

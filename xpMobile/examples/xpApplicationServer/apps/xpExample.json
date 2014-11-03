@@ -1,0 +1,49 @@
+var xpExample = {
+name: 'xpExample',
+type: 'XP_EXAMPLE',
+properties : { type: "XP_EXAMPLE", events: { 1: {name: "Number", mask: 1, keys: ["number"]}, }, actions: { 1: {name: "Action", mask: 1, keys: ["content"]}, } },
+    
+rule: {},
+
+devices: [],
+
+
+listeners: [{deviceName: 'xpApplicationServer', mask: 0x01<<0} ],
+    
+actionReceived: function(action){
+
+console.log(util.inspect(action));
+
+},
+    
+    
+eventReceived: function(event){
+    
+    console.log(util.inspect(event))
+
+    },
+    
+init: function(obj){
+    var util = require("util");
+    var rule = obj.ctx.rule;
+    var devices = obj.ctx.devices;
+
+},
+    
+start: function(obj){
+   
+    var devices = obj.ctx.devices;
+    var node = obj.node;
+    
+    var action = new Object();
+    action['action_type'] = 1;
+    action['NAME'] = "aaa";
+    action['CONTENT'] = "ciao";
+    //action['PARENT'] = 1;
+    
+    node.sendActionByName("xpDesktopWeb", action, node);
+    
+},
+    
+    
+}

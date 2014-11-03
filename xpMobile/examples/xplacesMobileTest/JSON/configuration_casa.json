@@ -1,0 +1,16 @@
+{
+	"netconf": {
+		"basePort": 4455,
+        "serverIPPort" : "http://192.168.1.70:4455",
+		"localIP" : "192.168.1.70",
+        "httpPort" : 8088
+	},
+	"args": {
+		"verbose" : true
+    },
+    "proxy": {
+    	"name": "Proxy_area_1",
+        "forward": true,
+        "proxyIPPort": "ws://192.168.1.70:8099"
+    }
+}

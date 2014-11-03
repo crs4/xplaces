@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>xpMonitor</title>
+         <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        
+       
+
+        <script>
+
+        //main function
+        
+        var ip;
+        $(function(){
+         
+        ip = "192.168.1.70";
+        
+        $("#button").click(function(){
+                           ip = $("#ip").val();
+                          
+        });
+          
+         
+          });
+        var action = new Object();
+        
+        function update(a, b, c){
+            //$('#main').html(a);
+            
+            var height = $( window ).height();
+            var width = $( window ).width();
+
+
+            var left = ((a / 180  + 0.5) * width)  - 64 ;
+            var top =  ((b / 180  + 0.5) * height)  -64 ;
+
+            $("#content").html(height);
+
+
+            $("#main").css({"top": top+"px", "left": left+"px"});
+            
+            
+            action["X"] = a;
+            action["Y"] = b;
+            
+//            action["X"] = 100.0;
+//            action["Y"] = 100.0;
+
+
+            action["sender_ip_port"] = "http://" + ip + ":5565";
+            network.sendAction("",action);
+        
+        }
+
+            var network ;
+            $(function() {
+             
+                network = new  xpNetwork();
+              
+
+
+            });
+
+
+            function xpReady(){
+                network.publish("XPUnity", "XP_UNITY");
+                startDeviceOrientation(network, update);
+                //setInterval(update, 30);
+                
+                //$("body").on("mousemove", function(e){update(e.clientX, e.clientY, 0)});
+            }
+
+
+
+        </script>
+
+        
+                    
+    </head>
+
+                     
+    <body>
+        <div id='content'>ccc</div>
+        <div id='main' style='position:absolute'><img src='img/icons/compass.png'/></div>
+        <input id='ip' ></input><button id='button'>OK</button>
+        
+    </body>
+
+</html>

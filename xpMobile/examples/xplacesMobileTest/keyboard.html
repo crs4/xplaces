@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>xpMonitor</title>
+         <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        
+       
+
+        <script>
+
+        //main function
+
+	var network;
+	var userName = 'samuel';
+        
+        $(function(){
+
+	network = new  xpNetwork();
+                 
+        $("#key").keyup(function(){
+                sendAction();
+                          
+        });
+
+	$( "#name" ).val(userName);	
+        });
+
+
+        var action = new Object();
+        
+        function sendAction(){
+            //$('#main').html(a);
+            
+            var key = $( "#key" ).val();
+                       
+            action["KEY"] = key;
+	    action["USERNAME"] = $( "#name" ).val();
+	    action["action_type"] = 0x01 << 14;
+            network.sendAction("xpDesktopQml",action);
+        
+	    console.log(key + ' ');
+
+	    $( "#key" ).val('');
+
+		
+        }
+
+	function xpReady(){
+        network.publish("XPKeyboard", "XP_KEYBOARD");
+                //setInterval(update, 30);
+            }
+
+
+
+        </script>
+
+        
+                    
+    </head>
+
+                     
+    <body>
+        <input id='key' ></input><br><br>
+	Type your name here!<input id='name' ></input>
+        
+    </body>
+
+</html>

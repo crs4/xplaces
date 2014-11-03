@@ -1,0 +1,116 @@
+var FB = require('fb');
+var storage = require('node-persist');
+storage.init();
+FB.options({
+           appId:          '239062392953403',
+           appSecret:      'ffbe7c7ce16b9dfe31411a22883443ca',
+           redirectUri:   'http://localhost:8080/Sinnova.html',
+           });
+var users = new Object();
+
+storage.setItem('users',users);
+
+var node;
+var xpSinnova = {
+name: 'xpSinnova',
+type: 'XP_SINNOVA',
+properties : { type: "XP_SINNOVA", events: { 1: {name: "Number", mask: 1, keys: ["number"]}, }, actions: { 1: {name: "Action", mask: 1, keys: ["content"]}, } },
+    
+listeners: [],
+    
+    
+    
+    
+actionReceived: function(action){
+    console.log(action);
+    
+    if(action['action_type'] == 0x01){
+        
+        
+        var code = action['fbcode'];
+        var destinationNode = {};
+        destinationNode ["sender_ip_port"]  = action ["sender_ip_port"];
+        destinationNode ["sender_session"]  = action ["sender_session"];
+        if(!users[code]){
+            
+            FB.napi('oauth/access_token', {
+                    client_id:      FB.options('appId'),
+                    client_secret:  FB.options('appSecret'),
+                    redirect_uri:   FB.options('redirectUri'),
+                    code:           code
+                    }, function(err, result) {
+                    if(err)
+                    console.log(err);
+                    
+                    else {
+                    
+                    
+                    
+                    FB.api('/me', {
+                           fields:         'id, name, picture',
+                           limit:          250,
+                           access_token:   result.access_token
+                           }, function (result) {
+                           if(!result || result.error) {
+                                console.log(result.error);
+                           }
+                           
+                           users[code] = result;
+                           storage.setItem('users',users);
+                           
+                           var action = new Object();
+                           action['action_type'] = 0x01<<1;
+                           action['user_data'] = JSON.stringify(result);
+                           node.sendActionByProxy(destinationNode, action, node);
+                           
+                           
+                           });
+                    
+                    
+                    }
+                    
+                    
+                    });
+            
+        }
+        else{
+        
+            var action = new Object();
+            action['action_type'] = 0x01<<1;
+            action['user_data'] = JSON.stringify(users[code]);
+            node.sendActionByProxy(destinationNode, action, node);
+        
+        }
+        
+        
+        
+        
+    
+    
+    }
+    
+    
+    
+    
+
+},
+    
+    
+eventReceived: function(event){
+    
+    console.log(util.inspect(event))
+
+    },
+    
+init: function(node){
+    
+
+},
+    
+start: function(n){
+   node = n;
+    
+},
+    
+    
+}

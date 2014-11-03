@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+    <head>
+        <title>xpDesktop</title>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        <style type="text/css">
+        
+#content-table
+{
+	padding-top: 0px;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	text-align: left;
+	border-collapse:separate;
+	border-spacing:1px;
+	text-shadow: 1px 1px 1px #fff;
+	line-height: 1.6em;
+
+	text-align: center;
+	width: 100%;
+}
+#content-table th
+{
+	padding: 12px;
+	font-weight: normal;
+	font-size: 14px;
+	color: #1D3249;
+}
+#content-table td
+{
+	padding: 9px 12px;
+	color: #2D4259;
+	margin-top: 1px;
+}
+#content-table a
+{
+	color: #2D4259;
+	text-decoration: none;
+}
+#content-table tfoot td
+{
+	font-size: 11px;
+}
+#content-table tbody td
+{
+	background: url('img/back_bw.png');
+}
+
+* html #content-table tbody td
+{
+	/* 
+	   ----------------------------
+		PUT THIS ON IE6 ONLY STYLE 
+		AS THE RULE INVALIDATES
+		YOUR STYLESHEET
+	   ----------------------------
+	*/
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/back_bw.png',sizingMethod='crop');
+	background: none;
+	color: #669;
+}	
+#content-table tbody tr:hover td
+{
+	color: #2D4259;
+	background: none;
+}
+        
+        </style>
+       
+
+        <script>
+
+        //main function
+        
+        
+        var xpContent;
+        var xpWaitAlert;
+        
+        var xpannouncelistener;
+
+
+        function update(a, b, c){
+            //$('#main').html(a);
+
+            var height = $( window ).height();
+            var width = $( window ).width();
+
+
+            var left = ((a / 180  + 0.5) * width)  - 64 ;
+            var top =  ((b / 180  + 0.5) * height)  -64 ;
+
+            $("#content").html(height);
+
+
+            $("#main").css({"top": top+"px", "left": left+"px"}); 
+
+        }
+
+            var network ;
+            $(function() {
+            
+                xpContent = document.getElementById("xpContent");
+                xpWaitAlert = document.getElementById("xpWaitAlert")
+     
+                network = new  xpNetwork();
+              
+              $('#uploadbutton').click(function(){
+              					 document.getElementById('progress').style.display = 'block';
+                                 var formData = new FormData($('form')[0]);
+                                 $.ajax({
+                                        url: 'upload',  //Server script to process data
+                                        type: 'POST',
+                                        xhr: function() {  // Custom XMLHttpRequest
+                                        var myXhr = $.ajaxSettings.xhr();
+                                        if(myXhr.upload){ // Check if upload property exists
+                                        myXhr.upload.addEventListener('progress',progressHandlingFunction, true); // For handling the progress of the upload
+                                        }
+                                        return myXhr;
+                                        },
+                                        //Ajax events
+                                        //beforeSend: function(){alert("before")},
+                                        
+                                        success: function(str){
+                                                    var data = jQuery.parseJSON(str);
+                                                    console.log(data.file.name);
+                                                    
+                                                    var action = new Object();
+                                                    //action["NAME"] = key;
+	    											action["CONTENT"] = "http://156.148.36.80:8090/"+data.file.name;
+	    											action["action_type"] = 0x01 << 0;
+            										network.sendAction("xpDesktop",action);
+            										
+            										document.getElementById('progress').style.display = 'none';
+                                        
+                                                },
+                                        //error: function(){alert("error")},
+                                        // Form data
+                                        data: formData,
+                                        //Options to tell jQuery not to process data or worry about content-type.
+                                        cache: false,
+                                        contentType: false,
+                                        processData: false
+                                        });
+                                 });
+                                 
+                                 
+                                 
+                xpannouncelistener = function(xpAnnounce){
+                            //console.log(xpAnnounce);
+                            var name = xpAnnounce["device_name"];
+                            var type = xpAnnounce["device_type"]; //usefull for icons
+                            var status = xpAnnounce["status"];
+                            
+                            if(name == "xpDesktop")
+                            {
+								if(status == "Dead")
+								{
+									xpWaitAlert.style.display="block";
+									xpContent.style.display="none";
+								}
+								else
+								{
+									xpWaitAlert.style.display="none";
+									xpContent.style.display="block";
+								}
+                            }
+                        }
+              
+              });
+              
+              function progressHandlingFunction(e){
+                    if(e.lengthComputable){
+                        $('progress').attr({value:e.loaded,max:e.total});
+                    }
+              }
+
+
+            function xpReady(){
+                network.publish("xpDesktopWeb", "XP_DESKTOPMOBILE");            
+                //startDeviceOrientation(network, update);
+                network.addActionListener(xpactionlistener);
+                network.addAnnounceListener(xpannouncelistener);
+            }
+            
+            
+            xpactionlistener = function(xpAction){
+                if(xpAction["action_type"] == 1){
+                    addContent(xpAction["CONTENT"]);
+                }
+            }
+            
+            
+            function addContent(url){
+                var str = "<img src='" + url + "'/>";
+                console.log(str);
+                //$("#content").append(str);
+            }
+            
+            function sendContent(url)
+            {
+            	var action = new Object();
+                //action["NAME"] = key;
+	    		action["CONTENT"] = url;
+	    		action["action_type"] = 0x01 << 0;
+            	network.sendAction("xpDesktop",action);
+            }
+            
+            function resetDesktop()
+            {
+            	var action = new Object();
+                //action["NAME"] = key;
+	    		action["action_type"] = 0x01 << 13;
+            	network.sendAction("xpDesktop",action);
+            }
+            
+            
+            
+            
+
+
+        </script>
+
+        
+        
+    </head>
+
+                     
+    <body style='width: 100%;'>
+    	<div id='xpContent' style='display:none'>
+			<div id='content'></div>
+			<form  enctype='multipart/form-data'>
+		
+			<input id='file' name='file' type="file" accept="image/*" />
+				<input type='button' id='uploadbutton' value='Send'/>
+			</form>
+		
+			<progress id='progress' style='display:none;'></progress>
+		
+		
+			<table id='content-table'>
+			<tr><td onclick="resetDesktop()">Clear Desktop</td></tr>
+			<tr><td onclick="sendContent('/code/data/PickARock/Sensi_di_Sardegna_2013-Copenaghen.mp4')">PickARock - Copenaghen</td></tr>
+			<tr><td onclick="sendContent('/code/data/PickARock/PickARock_Berlin.m4v')">PickARock - Berlin</td></tr>
+			<tr><td onclick="sendContent('/code/data/PickARock/videos/CA_AMBIENTE_1280.mp4')">PickARock - Ca - AMBIENTE</td></tr>
+			<tr><td onclick="sendContent('/code/data/PickARock/videos/CA_ARCHEO_1280.mp4')">PickARock - Ca - ARCHEOLOGIA</td></tr>
+			<tr><td onclick="sendContent('/code/data/PickARock/videos/CA_CITTA\'_1280.mp4')">PickARock - Ca - CITTA'</td></tr>
+			<tr><td onclick="sendContent('/code/data/Troll/crs4_movies/lcube.mov')">lCube</td></tr>
+			<tr><td onclick="sendContent('/code/data/Troll/crs4_movies/xdomo.mov')">xDomo</td></tr>
+			<tr><td onclick="sendContent('/code/data/Troll/crs4_movies/xmote.mov')">xMote</td></tr>
+			<tr><td onclick="sendContent('/code/data/Kinect/videos/4-stellarium-breve.m4v')">Kinect Stellarium</td></tr>
+			<tr><td onclick="sendContent('/code/data/Kinect/videos/4-PaperCHItalySosphereMD.m4v')">Kinect Stellarium - Completo</td></tr>
+		
+		
+			<!-- <tr><td onclick="sendContent('http://156.148.37.197:8080/xpDesktop.html')">Desktop Menu</td></tr>
+			<tr><td onclick="sendContent('http://demos.jquerymobile.com/1.2.0/docs/lists/lists-ul.html')">Listview</td></tr>-->
+			</table>
+        
+        </div>
+        <div id='xpWaitAlert' style='display:block'>
+        	Please wait a moment, xPlaces is connecting ....
+        </div>
+    </body>
+
+</html>

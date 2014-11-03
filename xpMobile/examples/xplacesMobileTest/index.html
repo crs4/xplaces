@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+    <head>
+        <title>Sinnova 2014</title>
+        <script src="js/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        <script type="text/javascript" src="js/jquery-cookie-master/jquery.cookie.js"></script>
+        <script src="js/bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/jquery-mobile/jquery.mobile-1.4.2.min.js"></script>
+        <script src="js/jquery.tmpl.min.js"></script>
+        
+        <link href="js/jquery-mobile/jquery.mobile-1.4.2.min.css" rel="stylesheet">
+   
+        <!--link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet"-->
+        <link href="css/Sinnova.css" rel="stylesheet">
+
+        <script id="friendinfotmpl" type="text/html">
+        <li><a href='${Url}' data-transition='slide'><img class='img-circle' src='${Img}' > <h2> ${Name} </h2> </a></li>
+        </script>
+
+       <script id="friendtmpl" type="text/html">
+           <div data-role="page" id="${Url}" >
+           <div data-role="header">
+           <a href="#sinnova" data-rel="back" class="ui-btn ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">Back</a>
+           <h1>${Name}</h1>
+           </div>
+           <div role="main" class="ui-content"><img class='img-circle' src='${Img}'><h2>${Name}</h2></div>
+           </div>
+       </script>
+       
+       <!--<li><a href="${Url}" data-transition='slide' ><img class='img-circle' src='${Picture}' > <h2> ${Name} </h2> </a></li>-->
+       <script id="folderinfotmpl" type="text/html">
+           
+           <li><a href="#${Id}" data-transition='slide' ><img class='img-circle' src='${Picture}' > <h2> ${Name} </h2> </a></li>
+        </script>
+
+       <script id="foldertmpl" type="text/html">
+           <div data-role="page" id="${Id}" >
+			   <div data-role="header">
+				   <a href="#sinnova" data-rel="back" class="ui-btn ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">Back</a>
+				   <h1>${Name}</h1>
+			   </div>
+			   <!--<div role="main" class="ui-content"><img class='img-circle' src='${Url}'><h2>${Message}</h2></div>-->
+			   <div role="main" class="ui-content iframecontainer" style='position: absolute; top: 45px; bottom: 0px; overflow: hidden; width: 100%; padding:0px; margin: 0px'>
+			   	<iframe style='width: 100%; height: 100%; overflow: hidden; padding:0px; margin: 0px' class="ui-content" src="${Url}" />
+			   </div>
+           </div>
+        </script>
+       
+       
+
+        <script>
+
+        //main function
+
+
+            var network ;
+            
+            var disableUser = false;
+            
+            var userdata = null;
+            var folder = new Array();
+            
+            $(function() {
+              
+              if($.cookie("sinnovafbuserid") || $.cookie("sinnovafbcode")){
+            	 //cookie exists, load xpNetwork
+            	 
+                 network = new  xpNetwork();
+                 $( ":mobile-pagecontainer" ).pagecontainer( "change", "#sinnova", {transition: 'slideup'});
+                 $.mobile.loading( "show", {
+                              textVisible: false,
+                               theme: "a",
+                               html: ""
+                               });
+                               
+                 disableUser = false;
+              }
+              
+              else{
+                if(getParameterByName('code') == ""){
+						//first time at startup
+                        $( ":mobile-pagecontainer" ).pagecontainer( "change", "#login");
+                        $.mobile.loading( "hide");
+                }
+                else{
+                	//reload page without code parameter, set sinnovafbcode in cookie, refresh
+                    $.cookie("sinnovafbcode", getParameterByName('code'));
+                    var url = window.location.href;
+                    window.location = url.split( '?' )[0];
+                    console.log(window.location.href);
+                }
+              }
+              
+            
+              $('#uploadbutton').click(function(){
+                 
+                 if($('#file').val() != '')
+                 {
+                 	 document.getElementById('progress').style.display = 'block';
+                 	 var formData = new FormData($('form')[0]);
+					 $.ajax({
+							url: 'upload',  //Server script to process data
+							type: 'POST',
+							xhr: function() {  // Custom XMLHttpRequest
+							var myXhr = $.ajaxSettings.xhr();
+							if(myXhr.upload){ // Check if upload property exists
+							myXhr.upload.addEventListener('progress',progressHandlingFunction, true); // For handling the progress of the upload
+							}
+							return myXhr;
+							},
+							//Ajax events
+							//beforeSend: function(){alert("before")},
+						
+							success: function(str){
+										var data = jQuery.parseJSON(str);
+										console.log(data.file.name);
+									
+										var action = new Object();
+										action["url"] =  getBaseUrl() + '/' + data.file.name;
+										action["message"] = $('#text_message').val();
+										action["fbuid"] = $.cookie("sinnovafbuserid");
+										action["action_type"] = 0x01 << 5;
+						
+										console.log(action);
+										network.sendAction("xpSinnova",action);
+										document.getElementById('progress').style.display = 'none';
+										
+										$('#text_message').val('')
+						
+									},
+							//error: function(){alert("error")},
+							// Form data
+							data: formData,
+							//Options to tell jQuery not to process data or worry about content-type.
+							cache: false,
+							contentType: false,
+							processData: false
+							});
+						}
+						$('#file').val('')
+						
+					 });
+                 
+                 
+              
+              });
+              
+              
+              function getParameterByName(name) {
+                  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                                        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                                        results = regex.exec(location.search);
+                                        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+              
+              
+              
+              function progressHandlingFunction(e){
+                    if(e.lengthComputable){
+                        $('progress').attr({value:e.loaded,max:e.total});
+                    }
+              }
+
+
+			function getBaseUrl()
+			{
+				pathArray = window.location.href.split( '/' );
+				protocol = pathArray[0];
+				host = pathArray[2];
+				return protocol + '//' + host;
+			}
+
+            function xpReady(){
+                network.publish("xpSinnovaMobile", "XP_SINNOVAMOBILE");
+                network.addActionListener(xpactionlistener);
+                network.addAnnounceListener(xpannouncelistener);
+                
+                network.addEventListener("xpSinnova", 0x01, xpeventListener)
+                
+                if($.cookie("sinnovafbcode") && !$.cookie("sinnovafbuserid"))
+                {
+                	
+					var action = new Object();
+					action['action_type'] = 0x01;  //login
+					action['fbcode'] = $.cookie('sinnovafbcode');
+					action['redirecturl'] = window.location.href.split('#')[0];
+					network.sendAction("xpSinnova", action);
+                }
+                
+                if($.cookie("sinnovafbuserid"))
+                {
+                	var action = new Object();
+                	
+                	action['fbuserid'] = $.cookie('sinnovafbuserid');
+					action['action_type'] = 0x01<<3;  //relogin
+					network.sendAction("xpSinnova", action);
+                }
+            }
+            
+            xpannouncelistener = function(xpAnnounce){
+                        
+              	//console.log(xpAnnounce);
+              }
+               
+                                        
+            xpeventListener = function(xpEvent){
+                console.log(xpEvent);
+                
+            }
+            
+                                        
+            xpactionlistener = function(xpAction){
+                console.log(xpAction);
+                if(xpAction["action_type"] == 0x01<<1){
+                    userdata = JSON.parse(xpAction["user_data"]);
+                    
+                    $.cookie("sinnovafbuserid", userdata.id);
+                    $('#userinfo').show();
+                    $('#messageform').show();
+                    $('#picture').attr("src", userdata.picture);
+                    $('#username').text(userdata.name);
+                    $.mobile.loading( "hide");
+                }
+                else if(xpAction["action_type"] == 0x01<<2){
+                    $.removeCookie('sinnovafbcode');
+                    $.removeCookie('sinnovafbuserid');
+                    $('#login').show();
+                    $('#sinnova').hide();
+                    $.mobile.loading( "hide");
+                }
+//                else if(xpAction["action_type"] == 0x01<<3){
+//                    userdata = JSON.parse(xpAction["user_data"]);
+//                    $('#picture').attr("src", userdata.picture.data.url);
+//                    $('#username').text(userdata.name);
+//                    
+//                    console.log(xpAction["user_data"]);
+//                }
+                                        
+                else if(xpAction["action_type"] == 0x01<<4){    //add friend
+                                        
+                    xpAction["friend_id"];
+                    xpAction["friend_name"];
+                    xpAction["friend_picture"];
+     
+                var tmpl =  $("#friendinfotmpl").text();
+                var html =  $.tmpl( tmpl, { Url: '#friendinfo_' + xpAction["friend_id"] , "Name" : xpAction["friend_name"], Img: xpAction["friend_picture"] });
+                $(html).appendTo('#friends');
+                $('#friends').listview("refresh");
+                     
+                var tmpl =  $("#friendtmpl").text();
+                var page =  $.tmpl( tmpl, { Url: 'friendinfo_' + xpAction["friend_id"] , "Name" : xpAction["friend_name"], Img: xpAction["friend_picture"] });
+                page.enhanceWithin().appendTo('body');
+                                    
+                   
+                }
+                 
+                else if(xpAction["action_type"] == 0x01<<5){   //update user folder
+                                        
+                    var content = JSON.parse(xpAction["content"]);
+                    var content_id = content.id.replace(/ /g, '_');
+                    if(folder[content_id] === undefined){
+                        folder[content_id] = content;
+                        var tmpl =  $("#folderinfotmpl").text();
+                        var html =  $.tmpl( tmpl, { Id: 'folderinfo_' + content_id , Name : content.name, Picture : content.picture, Url: content.url });
+                        $(html).appendTo('#bouquet');
+                        $('#bouquet').listview("refresh");
+                        
+                        var tmpl =  $("#foldertmpl").text();
+                        var page =  $.tmpl( tmpl, { Id: 'folderinfo_' + content_id , Name : content.name, Picture : content.picture, Url: content.url });
+                        page.enhanceWithin().appendTo('body');
+                                        
+                        localStorage.setItem(content_id, content);
+                        console.log(localStorage);
+                                        
+                    }
+
+                }
+                          
+                
+            }
+            
+            
+            function addContent(url){
+                var str = "<img src='" + url + "'/>";
+                console.log(str);
+                //$("#content").append(str);
+            }
+            
+            function sendContent(url)
+            {
+            	var action = new Object();
+                //action["NAME"] = key;
+	    		action["CONTENT"] = url;
+	    		action["action_type"] = 0x01 << 0;
+            	network.sendAction("xpDesktop",action);
+            }
+            
+            function resetDesktop()
+            {
+            	var action = new Object();
+                //action["NAME"] = key;
+	    		action["action_type"] = 0x01 << 13;
+            	network.sendAction("xpDesktop",action);
+            }
+            
+            
+            function sendToFacebook()
+            {
+            	var address = "https://www.facebook.com/dialog/oauth?client_id=239062392953403&scope=publish_actions&redirect_uri="+window.location.href;
+            	console.log(address);
+            	window.location = address;
+            }
+            
+            function logout()
+            {
+            	var action = new Object();
+                action["NAME"] = userdata.id;
+	    		action["action_type"] = 0x01 << 11;
+            	network.sendAction("xpDesktop",action);
+            	
+            	network.sendAction("xpSinnova",action);
+            	
+            	$.removeCookie('sinnovafbcode');
+            	$.removeCookie('sinnovafbuserid');
+            	location.reload();
+            }
+            
+            function disableWall()
+            {
+            	disableUser = !disableUser;
+            	
+            	var action = new Object();
+                action["NAME"] = userdata.id;
+                
+                if(disableUser)
+	    			action["action_type"] = 0x01 << 6;
+	    		else
+	    			action["action_type"] = 0x01 << 7;
+	    			
+            	network.sendAction("xpSinnova",action);
+            }
+            
+            function checkMessageLength()
+            {
+            	$('#messageLength').html('Caratteri rimanenti: ' + (160 - $('#text_message').val().length));
+            }
+
+        </script>
+
+        
+        
+    </head>
+
+                     
+    <body>
+        
+        
+        <!-- PAGE LOGIN -->
+        <div data-role="page" id="login" >
+ 
+            <div role="main" class="ui-content">
+                <div class="form-signin" role="form" >
+                    <img src="img/sinnova.png" class='img-circle' alt="Sinnova" width='10%'/><span class="form-signin-heading">Sinnova 2014 Social Wall</span>
+                    <br/>
+                    <a href="javascript:sendToFacebook()"><img class='img-circle' src="img/fblogin.gif" width='30%'></img></a>
+                    
+                    <div id="login-intro"><p class="intro">Clicca sull'icona qui sopra per accedere col tuo account Facebook</p>
+                    
+                    <br><br>
+                    Effettuando l'accesso, autorizzerai l'applicazione a:
+                    <ul>
+                    	<li>mostrare nella tua bacheca le aziende che indicherai tra le tue preferenze</li>
+                    	<li style='margin-top: 10px'>creare un album <i>Sinnova 2014</i> che raccoglie le foto che aggiungerai al diario</li>
+                    </ul>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>   <!-- /login -->
+        
+     <!-- PAGE SINNOVA -->
+     <div data-role="page" id='sinnova' >
+         <div data-role="header"  data-position="fixed"><h1>Sinnova 2014 Social Wall</h1>
+         	<!--<a href="javascript:disableWall()" class="ui-btn ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-power">Disabilita</a>-->
+         	<a href="javascript:logout()" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-power">Logout</a>
+         </div>   <!--/header-->
+         
+        <!--div role="main" class="ui-content"-->
+        <div data-role="tabs">
+            <div data-role="navbar" data-iconpos='left'>
+              <ul>
+                    <!--<li><a href="#home"    data-icon='home' data-theme="a" data-ajax="false">Home</a></li>-->
+                    
+                    <!--<li><a href="#amici"   data-icon='user' data-theme="a" data-ajax="false">Amici</a></li>-->
+                    <li><a href="#folder"  data-icon='heart' data-theme="a" data-ajax="false">Il mio Sinnova</a></li>
+                    <li><a href="#message" data-icon='comment' data-theme="a" data-ajax="false">Il diario</a></li>
+                </ul>
+                
+                
+                </div>
+            
+            
+            <!--<div id="home" class="ui-content">
+                <div id='userinfo'>
+                    <img class="img-circle" id='picture' src='' /><span id='username'></span>
+                </div>
+            </div>-->
+            
+            
+            
+               <div id="message" class="ui-content">
+						
+						<div id='messageform' style='display:block'>
+							Scegli o scatta una nuova foto da inserire al diario.
+							<form  enctype='multipart/form-data'>
+							<span class="ui-btn ui-corner-all fileinput-button">
+							<input id='file' name='file' type="file" accept="image/*" data-role='none' text='ciao'/>
+							</span>
+							<input id='text_message' type='text' placeholder='Lascia un commento' maxlength="160" onkeydown="setTimeout(checkMessageLength,200)"/>
+							<div id='messageLength' style='color: #aaaaaa; font-size: 11px;'>Caratteri rimanenti: 160</div>
+							<input type='button' id='uploadbutton' value='Invia'/>
+						
+							</form>
+							<progress id='progress' style='display:none;'></progress>
+                        </div>
+  
+            </div>
+        
+        
+            <!--<div id="amici" class="ui-content">
+                <ul id='friends' data-role="listview" data-inset="true">
+                    
+                </ul>
+                
+            </div>-->
+            
+            <div id="folder" class="ui-content">
+            	<div id='userinfo' style='display:none'>
+							<img class="img-circle" id='picture' src='' /><span id='username'></span>
+				</div>
+                <ul id='bouquet' data-role="listview" data-inset="true"  data-autodividers="true">
+                    
+                </ul>
+                
+            </div>
+            
+            
+         </div>  <!-- /tabs -->
+        <!--/div-->   <!-- /main -->
+        
+        <div data-role="footer" data-position="fixed" class="ui-bar"><a data-transition="flip" href="#about" data-role="button"  class="ui-btn ui-icon-info ui-btn-icon-notext ui-corner-all" ></a></a><small>&copy; Copyright CRS4 2014</small></div>
+        
+        </div>  <!-- /sinnova -->
+        
+       
+     
+    
+    
+     <div data-role="page" id="friendinfo" >
+         <div data-role="header">
+             <a href="../toolbar/" data-rel="back" class="ui-btn ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">Back</a>
+             <h1>Amici</h1>
+         </div>
+         <div role="main" class="ui-content">info amici</div>
+         
+     
+     </div>
+     
+     
+     <div data-role="page" id="div-iframe" >
+			   <div data-role="header">
+				   <a href="#sinnova" data-rel="back" class="ui-btn ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">Back</a>
+				   <h1>${Name}</h1>
+			   </div>
+			   <!--<div role="main" class="ui-content"><img class='img-circle' src='${Url}'><h2>${Message}</h2></div>-->
+			   <div role="main" class="ui-content iframecontainer" style='position: absolute; top: 45px; bottom: 0px; overflow: hidden; width: 100%; padding:0px; margin: 0px'>
+			   	<iframe id='iframe' style='width: 100%; height: 100%; overflow: hidden; padding:0px; margin: 0px' class="ui-content" src="${Url}" />
+			   </div>
+           </div>
+    
+    <div data-role="page" id="about" >
+        <div data-role="header" data-add-back-btn="true" data-back-btn-text="Back"><h1>About</h1></div>
+            <div role="main" class="ui-content"></div>
+        
+        <div data-role="footer" data-position="fixed"></div>
+    </div>
+
+    </body>
+
+</html>

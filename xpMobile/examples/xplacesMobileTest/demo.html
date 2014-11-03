@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        
+        <script>
+        
+        
+        var device_name = "xpDummy";
+        var device_type = "XP_DUMMY";
+            
+        
+        //event listener function
+        xpListener = function(xpEvent)
+        {
+            console.log("xpEvent: " + xpEvent["dummyvalue"]);
+            document.getElementById("event_div").innerHTML = "Event received: " + xpEvent["dummyvalue"];
+        }
+        
+        
+        //announce listener function
+        xpAnnounceListener = function(xpAnnounce)
+        {
+        	//add listener by name
+        	//if(xpAnnounce["device_name"] == device_name) 
+        	
+        	//add listener by type 
+        	if(xpAnnounce["device_type"] == "XP_DUMMY")
+        	{
+            	
+            	if(xpAnnounce["status"] == "Dead")
+            	{
+            		//the node is dead ..
+            		console.log("xpAnnounce: " + xpAnnounce["device_name"] + " dead!");
+            		document.getElementById("waiting_div").style.display = "block";
+            		document.getElementById("device_div").style.display = "none";
+            	}
+            	else
+            	{
+            		//the node appears ..
+            		console.log("xpAnnounce: " + xpAnnounce["device_name"] + " found!");
+            		document.getElementById("waiting_div").style.display = "none";
+            		document.getElementById("device_div").style.display = "block";
+            		
+            		document.getElementById("device_name_div").innerHTML = xpAnnounce["device_name"];
+            		document.getElementById("device_type_div").innerHTML = xpAnnounce["device_type"];
+            		
+            		
+            		//when the node is visible, set event listener
+            		network.addEventListener(xpAnnounce["device_name"], 256, xpListener);
+            	}
+            }
+        }
+        
+        
+        var network = new xpNetwork();
+
+		//xpReady is called at the startup
+        function xpReady(){
+            
+            console.log("xpReady");
+            
+            //publish a xplaces node
+            network.publish("Dashboard Demo", "DASHBOARD");
+            network.addAnnounceListener(xpAnnounceListener);           
+        }
+        
+        
+        
+        //publish a xplaces node
+        function sendAction()
+        {
+        	var a = new Object();
+            a["action_type"] = 1;
+            a["device_name"] = device_name;
+            a["action_mask"] = 256;
+            
+            a["NAME"] = "Type here a action name";
+            a["CONTENT"] = "Test here a action content";
+            
+            network.sendAction(device_name, a);
+        }
+
+
+        
+        
+        </script>
+        
+        
+    </head>
+    
+    <body>
+        
+        
+        
+        
+        <div id="waiting_div">
+        	Please wait, searching for device node ...
+        </div>
+        <div id="device_div" style="display:none;">
+        	<div id="device_name_div"></div>
+        	<div id="device_type_div"></div>
+        	<div id="event_div"></div>
+        	<button onclick='sendAction();'>Send Action</button>
+        </div>
+        
+    </body>    
+    
+</html>

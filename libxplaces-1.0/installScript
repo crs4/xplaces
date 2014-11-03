@@ -1,0 +1,53 @@
+#!/bin/bash
+echo "Installing xplaces..."
+
+rootHeaderInstall="/usr/include/xplaces/"
+rootBinariesInstall="/usr/lib/xplaces/"
+
+if [ -d $rootHeaderInstall ]; then
+	echo "Removing old header installation path..."
+	rm -rf $rootHeaderInstall
+else 
+	echo "Ready to Install headers..."
+fi 
+
+if [ -d $rootBinariesInstall ]; then
+	echo "Removing old header binaries path..."
+	rm -rf $rootBinariesInstall
+else 
+	echo "Ready to Install binaries..."
+fi 
+
+echo "Creating directories..."
+
+mkdir /usr/include/xplaces
+mkdir /usr/include/xplaces/udp
+mkdir /usr/include/xplaces/webserver
+
+mkdir /usr/lib/xplaces
+
+echo "Copying headers..."
+cd src/
+cp *.h /usr/include/xplaces
+cd udp/
+cp *.h /usr/include/xplaces/udp
+cd ../webserver/
+cp *.h /usr/include/xplaces/webserver
+cd ..
+cd ..
+
+echo "Copying binaries..."
+cd Release/
+cp *.so /usr/lib/xplaces
+
+echo "Exporting libraries..."
+pathToLd="/etc/ld.so.conf.d/xplaces.conf"
+if [ -d $pathToLd ]; then
+	echo "Removing old ld configuration path..."
+	rm $pathToLd
+else 
+	echo "Ready to config ld..."
+fi
+echo $rootBinariesInstall > $pathToLd
+ldconfig
+

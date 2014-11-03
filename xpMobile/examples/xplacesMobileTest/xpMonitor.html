@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>xpMonitor</title>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+            <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+            <!--script src="js/jquery-ui-1.8.23.custom.min.js"></script-->
+            
+            <link href="js/kendoui/styles/kendo.common.min.css" rel="stylesheet" />
+            <link href="js/kendoui/styles/kendo.default.min.css" rel="stylesheet" />
+            
+			<link href="xpMonitor.css" rel="stylesheet">
+                <link href="examples.css" rel="stylesheet">
+                    <link href="js/kendoui/styles/kendo.silver.min.css" rel="stylesheet">
+                        
+                        <!--script src="js/kendoui/js/jquery.min.js"></script-->
+                        <script src="js/kendoui/js/kendo.web.min.js"></script>
+                        <script src="js/deviceProperties.js"></script>
+                        
+                        <script>
+
+                        
+                        
+                        
+                        var contents = {
+                            /*img1: { NAME: "a", CONTENT: "http://labomc.it/wp-content/themes/americana/scripts/timthumb.php?src=http://labomc.it/wp-content/uploads/2012/11/QuandoSonoNato.jpg&h=400&w=600&zc=1", title: "Quando sono Nato"},
+
+                            img2: { NAME: "b", CONTENT: "http://labomc.it/wp-content/themes/americana/scripts/timthumb.php?src=http://labomc.it/wp-content/uploads/2012/11/Numeri-in-Testa.jpg&h=400&w=600&zc=1", title: "Numeri in Testa"},
+
+                            img3: { NAME: "c", CONTENT: "http://labomc.it/wp-content/themes/americana/scripts/timthumb.php?src=http://labomc.it/wp-content/uploads/2012/04/DSC_50363.png&h=400&w=600&zc=1", title: "FeelGood"},
+
+                            img4: { NAME: "d", CONTENT: "http://labomc.it/wp-content/themes/americana/scripts/timthumb.php?src=http://labomc.it/wp-content/uploads/2012/04/DSC_5364.png&h=400&w=600&zc=1", title: "BeGreen"},*/
+
+                            img1: { NAME: "e", CONTENT: "http://labomc.it/wp-content/themes/americana/scripts/timthumb.php?src=http://labomc.it/wp-content/uploads/2011/10/selene_pallida.png&h=400&w=600&zc=1", title: "Wonderbook"},
+
+                            img2: { NAME: "f", CONTENT: "http://labomc.it/wp-content/themes/americana/scripts/timthumb.php?src=http://labomc.it/wp-content/uploads/2011/02/dadodice_featured1.png&h=400&w=600&zc=1", title: "Dadodice"},
+
+                            img3: { NAME: "g", CONTENT: "https://fbcdn-sphotos-a-a.akamaihd.net/hphotos-ak-ash3/q79/s720x720/1385966_578131722254265_608687147_n.jpg", title: "PeekARock"},
+                            
+                        };
+                        
+                        
+                        var modules = [{title: "Generic Rule", setup: "console.log('setup Generic Rule')", loop: "console.log('loop Generic Rule')"},
+                                       {title: "Arduino "}
+                                    ];
+                                        
+                                        
+                                        
+                       
+                        
+                        google.load("visualization", "1", {packages:["corechart"]});
+                        var d = new Date();
+                        var initTime = d.getTime() / 1000;
+                        
+                        var panelBar;
+                        var modulesBar;
+                        var devices = new Object();
+                        
+                        var rules = new Array();
+                        
+                      
+                      
+                        
+                        //main function
+                        $(function() {
+                          
+                          $("#devices").kendoWindow({
+                                                    width: "250px",
+                                                    title: "Devices",
+                                                    position: {
+                                                    top:  100,
+                                                    left: 10,
+                                                    },
+                                                    resizable: true,
+                                                    actions: [ "Minimize", "Maximize" ],
+                                                    });
+                          
+                          
+                          $("#media").kendoWindow({
+                                                  width: "250px",
+                                                  title: "Media",
+                                                  position: {
+                                                  top:  300,
+                                                  left: 10,
+                                                  },
+                                                  resizable: true,
+                                                  actions: [ "Minimize", "Maximize" ],
+                                                  });
+                          
+                          $("#modules").kendoWindow({
+                                                    width: "250px",
+                                                    title: "Modules",
+                                                    position: {
+                                                    top:  100,
+                                                    left: '80%',
+                                                    },
+                                                    resizable: true,
+                                                    actions: [ "Minimize", "Maximize"],
+                                                    });
+
+                          
+                          
+                          
+                          $("#rule").kendoWindow({
+                                                 width: "250px",
+                                                 title: "Rule",
+                                                 position: {
+                                                 top:  500,
+                                                 left: 10,
+                                                 },
+                                                 resizable: true,
+                                                 actions: [ "Minimize", "Maximize"],
+                                                 });
+                          
+                          
+                          
+                          $("#composition").kendoDropTarget({
+                                    dragenter: function(){},
+                                    dragleave: function(){},
+                                    drop: function targetOnDrop(e) {
+                                                    var obj = $(e.draggable.element[0]);
+                                                    str = "var a = devices.";
+                                                    str += obj.data("name");
+                                                    str += "." + obj.data("eventaction") + "[" + obj.data("mask") + "];";
+                                                    
+                                                            //console.log($(this)) ;
+                                    
+                                    
+                                    },
+                                    group: "events"
+                                    });
+
+                          panelBar = $("#menu").kendoPanelBar();
+    
+                          
+                          $("#desktop").kendoDropTarget({
+                                    dragenter: function(){},
+                                    dragleave: function(){},
+                                    drop: function targetOnDrop(e) {
+                                        if( ( $(e.draggable.element[0])).hasClass("Module")   ) {
+                                            openModule( ($(e.draggable.element[0])).attr("id"), e.clientX, e.clientY);
+                                            return;
+                                        }
+                                        var elementID = e.draggable.element[0].childNodes[0].childNodes[0].id;
+                                        openWindow(elementID, e.clientX, e.clientY);
+                                    
+                                    },
+                                    group: "device"
+                            });
+                          
+                          
+                          
+                          
+                          initContents();
+                          initModules();
+                          
+                          }); //end main function
+                          
+                          
+                          function initContents(){
+                              $("#contents").kendoPanelBar();
+                              var contentsBar = $("#contents").data("kendoPanelBar");
+                              contentsBar.collapse("#media", false);
+                              for(var k in contents){
+                                  var item = contents[k];
+                                  contentsBar.append({
+                                     //id: name,
+                                     text:  "<div class='Photo' data-name=" + k + "> <img style ='width:100px' src='"  + item.CONTENT + "' alt='" + item.title + "'> <h3>" + item.title + "</h3> </div>",
+                                     encoded: false,
+                                     cssClass: "content"
+                                     },"li:first-child");
+                              }
+                              
+                              $(".Photo").kendoDraggable({
+                                         hint: function(element) {
+                                         var cloned = $(element).clone();
+                                         return cloned;
+                                         },
+                                         group: "photo",
+                                         dragstart: function(){},
+                                         dragend: function(){}
+                                         });
+                          }
+                        
+                        function initModules(){
+                            $("#modules_bar").kendoPanelBar();
+                            var modulesBar = $("#modules_bar").data("kendoPanelBar");
+                            modulesBar.collapse("#modules_bar", false);
+                            var i;
+                            for(i = 0; i < modules.length; i++){
+                                var item = modules[i];
+                                modulesBar.append({
+                                                   //id: name,
+                                                   text:  "<div id='mod_" + i + "' class='Module'>"  + item.title + "</div>",
+                                                   encoded: false,
+                                                   cssClass: "module"
+                                                   },"li:first-child");
+                            }
+                            
+                            $(".Module").kendoDraggable({
+                                                       hint: function(element) {
+                                                       var cloned = $(element).clone();
+                                                       return cloned;
+                                                       },
+                                                       group: "device",    //drag in desktop
+                                                       dragstart: function(){},
+                                                       dragend: function(){}
+                                                       });
+                        
+                        }
+                        
+                        
+                        
+                    
+                        
+                        function button(name, type, ea_name, mask, cmd, label){
+                            var data = "";
+                            data += "data-name='"  + name +"'   ";
+                            data += "data-type='"  + type + "' ";
+                            data += "data-ea_name='"  + ea_name + "' ";
+                            data += "data-mask='"  + mask + "' ";
+                            data += "data-cmd='"   + cmd  + "' ";
+                            str = "<button class='button' type ='button'" + data + ">" + label +"</button>" ;
+                            return str;
+                            
+                        }
+                        
+                        
+                        function icon(eventaction, name, mask, src, alt){
+                            
+                            var img = $("<img>");
+                            img.attr("data-name", name);
+                            img.attr("data-mask", mask);
+                            img.attr("data-eventaction", eventaction);
+                            img.attr("src", src);
+                            img.attr("alt", alt);
+                            img.addClass("dragevent" + name);
+                            return img[0].outerHTML;
+                            
+                        }
+
+
+
+                        
+                        function openModule(modid, x, y){
+                            var ids = modid.split("_");
+                            var id = ids[1];
+                            var module = modules[id];
+                            var title = module.title;
+                            var rid = randomString(8);
+                            var rule = new Object();
+                            rule.setup = module.setup;
+                            rule.loop = module.loop;
+                            rule.env = "";
+                            rule.active = false;
+                            rules.push(rule);
+                            rule.data = new Object();
+                            rule.data.listeners = new Array();
+                            rule.data.actions = new Array();
+                            
+                            
+                            
+                            var winMod = $("<div>");
+                            winMod.data("xprule", rule);
+                            
+                            
+                            var head = $("<div>Rule Name: </div>").appendTo(winMod);
+                            $("<input type='text'/>").attr('id', 'rulename_' + rid).appendTo(head);
+                            $("<input type='hidden'/>").attr('id', 'ruleenv_' + rid).appendTo(head);
+                            var droparea = $("<div style=\"border: 1px solid blue; width:98%; min-height:20px\"></div>").appendTo(winMod);
+                            var varName = 97;;
+                            
+                            $("<br>").appendTo(winMod);
+                            var textareaSetup = $("<textarea style='width:100px, height:200'>").appendTo(winMod).attr('id', 'rulesetup_' + rid).val(rule.setup);
+                            $("<br>").appendTo(winMod);
+                            var textareaLoop = $("<textarea style='width:100px, height:200'>").appendTo(winMod).attr('id', 'ruleloop_' + rid).val(rule.loop);
+                            $("<br>").appendTo(winMod);
+                            var buttonStart = $("<button>START</button>");
+                            buttonStart.on("click", function(e){
+                                   rule.setup = textareaSetup.val();
+                                   rule.loop = textareaLoop.val();
+                                   rule.envFunction = new Function(rule.env);
+                                   rule.envFunction();
+                                   rule.setupFunction = new Function(rule.setup);
+                                   rule.setupFunction();
+                                   rule.loopFunction = new Function(rule.loop);
+                                    
+                                   rule.active = true;
+                            });
+                            
+                            buttonStart.appendTo(winMod).val(rule.loop);
+                            
+                            
+                            var buttonStop = $("<button>STOP</button>");
+                            buttonStop.on("click", function(e){
+                                      
+                                      
+                                      rule.active = false;
+                                      });
+                                      
+                            buttonStop.appendTo(winMod);
+                            
+                            
+                            var buttonSave = $("<button>Save</button>");
+                            buttonSave.on("click", function(e){
+                                          console.log(rule);
+                                          console.log($(this));
+                                          rule.active = false;
+                                          
+                                          var action = new Object();
+                                          action['action_type'] = 0x01<<0;
+                                          action['rulename'] = $('#rulename_' + rid).val();
+                                          action['ruleenv'] = $('#ruleenv_' + rid).val();
+                                          action['rulesetup'] = $('#rulesetup_' + rid).val();
+                                          action['ruleloop'] = $('#ruleloop_' + rid).val();
+                                          action['ruledata'] = JSON.stringify(rule.data);
+                                          console.log(action);
+                                          console.log(rule);
+                                          network.sendAction("xpApplicationServer", action);
+                                          
+                                          });
+                                          
+                            buttonSave.appendTo(winMod);
+                            
+                            
+                            
+                            droparea.kendoDropTarget({
+                                                     dragenter: function(e){$(e.dropTarget.context).css("border-color", "red")},
+                                                     dragleave: function(e){$(e.dropTarget.context).css("border-color", "blue")},
+                                            drop: function targetOnDrop(e) {
+                                                     $(e.dropTarget.context).css("border-color", "blue");
+                                            var obj = $(e.draggable.element[0]);
+                                            str = "rule." + String.fromCharCode(varName) +  " = devices.";
+                                            str += obj.data("name");
+                                            str += "." + obj.data("eventaction") + "[" + obj.data("mask") + "];\n";
+                                                     
+                                                     droparea.append(str + "</br>");
+                                                     rule.env += str;
+                                                     $('#ruleenv_' + rid).val(rule.env);
+                                                     //textareaLoop.val(str + textareaLoop.val());
+                                                     varName++;
+                                                     if(obj.data("eventaction") == "events"){
+                                                            network.addEventListener(obj.data("name"), obj.data("mask"), xplistener);
+                                                            rule.data.listeners.push({listener: obj.data("name"), mask: obj.data("mask")});
+                                                     }
+                                                     else if(obj.data("eventaction") == "actions"){
+                                                        devices[obj.data("name")].actions[obj.data("mask")] = new Object();
+                                                        var act = devices[obj.data("name")].actions[obj.data("mask")];
+                                                        act["action_type"] = obj.data("mask");
+                                                        act["device_name"] = obj.data("name");
+                                                        rule.data.actions.push({devicename: obj.data("name"), mask: obj.data("mask"), action: act});
+                                                        act.send = function(){
+                                                            var a = devices[obj.data("name")].actions[obj.data("mask")];
+                                                            network.sendAction(a["device_name"], a);
+
+                                                        }
+                                                     }
+                                                     
+                                            },
+                                            group: "events"
+                                            });
+
+                            
+                            
+                            
+                            
+                            $("#desktop").append(winMod);
+                            winMod.kendoWindow({
+                                         width: "250px",
+                                         title: title,
+                                         position: {
+                                         top:  y - 5,
+                                         left: x - 200
+                                         },
+                                         animation: {
+                                         open: {
+                                         effects: "fade:in"
+                                         },
+                                         close: {
+                                         effects: "fade:out"
+                                         }
+                                         },
+                                         resizable: true,
+                                         actions: [ "Minimize", "Maximize"],
+                                         close: function(){
+                                         }
+                                });
+                            
+                            
+                            
+                            
+                            console.log(id);
+                        }
+                        
+                        
+                        
+                        function openWindow(name, x, y){
+                            if($("#win_" + name ).length > 0)  {
+                                   $("#win_" + name).data("kendoWindow").open();
+                                   return;
+                            }
+                            
+                            var descriptor = devices[name].descriptor;
+                            var type = descriptor["device_type"];
+                            
+                            var obj = properties[type];
+                            
+                            var events = obj.events;
+                            var actions = obj.actions;
+                            
+                            
+                            var str = "<ul id='panel_" + name + "'><li><b>Events</b><ul>";
+                            
+                            //console.log(events.length);
+                            for (var mask in events) {
+                                var event = events[mask];
+                                str += "<li>" + event.name + "<ul>";
+                                str += "<li>";
+                                str += "<table>";
+                                str += "<tr><td></td><td>" + button(name, type, event.name, event.mask, 'listen', 'Listen');
+                                str += button(name, type, event.name, event.mask, 'chart', 'Chart');
+                                str += "</td>";
+                                str += "<td>" + icon("events",  name, mask, 'img/icons/event.png', "Drag") + "</td></tr>";
+                                
+                                
+                                for(j = 0; j<event.keys.length; j++){
+                                    var keyTitle = event.keys[j];
+                                    var keyType = "";
+                                    if(event.keyoptions){
+                                        keyTitle = event.keyoptions[event.keys[j]].title;
+                                        keyType = "type = '" + event.keyoptions[event.keys[j]].type + "'";
+                                        if(event.keyoptions[event.keys[j]].type == "range") {
+                                            keyType += " min='" + event.keyoptions[event.keys[j]].min + "' max='" + event.keyoptions[event.keys[j]].max + "'";
+                                         }
+                                    }
+                                    str += "<tr><td>" + keyTitle + "</td><td><input readonly " + keyType  + " class='inputNumber " + name+"_"+ event.mask +"_"+event.keys[j]  + "' type='number' value='0' />" + "</td>    <td></td></tr>";
+                                    
+                                }
+                                str +="</table>";
+                                str +=  "</li></ul></li>";
+                            }
+                            str += "</ul></li>";
+                            str += "<li><b>Actions</b><ul>";
+                            
+                            for (var mask in actions) {
+                                var action = actions[mask];
+                                str += "<li>" + action.name + "<ul>";
+                                str += "<li>";
+                                str += "<table>";
+                                str += "<tr><td></td><td>" + button(name, type, action.name,  action.mask, 'sendAction', 'Send Action');
+                                str += "</td>";
+                                str += "<td>" + icon("actions", name, mask, 'img/icons/action.png', "Drag");
+                                
+                                for(j = 0; j<action.keys.length; j++){
+                                    var keyTitle = action.keys[j];
+                                    var keyType = "";
+                                    if(action.keyoptions){
+                                        keyTitle = action.keyoptions[action.keys[j]].title;
+                                        keyType = "type = '" + action.keyoptions[action.keys[j]].type + "'";
+                                        if(action.keyoptions[action.keys[j]].type == "range") {
+                                            keyType += " min='" + action.keyoptions[action.keys[j]].min + "' max='" + action.keyoptions[action.keys[j]].max + "'";
+                                            if(action.state == true){
+                                                //console.log(descriptor);
+                                                    if(descriptor[action.keys[j]]) keyType += " value='" + parseInt(descriptor[action.keys[j]]) + "'";
+
+
+                                            }
+                                        }
+                                    }
+                                            
+                                    str += "<tr><td>" + keyTitle +     "</td><td><input  " + keyType  + " class='inputNumber " + name +"_" + action.mask + "_"+ action.keys[j] +"'  />"    + "</td></tr>";
+                                    
+
+                                }
+                                
+                                if(action.dropTarget == true){
+                                    str += "<tr><td><div class='dropTargetAction' data-mask='" + mask +"' data-name='" + name + "' data-type='" + type + "' style='border:5px solid blue; width: 60px; height: 60px' id='dropurl_" + name + "'> Drop Here</div></tr></td>";
+                                }
+                                
+                                str +="</table>";
+                                str +=  "</li></ul></li>";
+                                
+                            }
+                            str += "</ul></li></ul>";
+                            
+                            var win =  $("<div id='win_" + name + "' class='optWin " + name +" '>" +  str + "</div>").appendTo("#desktop").kendoWindow({
+                                      width: "250px",
+                                      title: name,
+                                      position: {
+                                      top:  y - 5,
+                                      left: x - 200
+                                      },
+                                      animation: {
+                                      open: {
+                                      effects: "fade:in"
+                                      },
+                                      close: {
+                                      effects: "fade:out"
+                                      }
+                                      },
+                                      resizable: true,
+                                      actions: [ "Minimize", "Maximize", "Close" ],
+                                      close: function(){
+                                      //console.log($(this));
+                                      }
+                                      });
+                                      
+                          $("#panel_" + name).kendoPanelBar({
+                           });
+                           
+                          $(".button").click(function (e){
+                                  processClick($(this));
+                          });
+                          
+                                                                  
+                          $(".dropTargetAction").kendoDropTarget({
+                                dragenter: function(e){$(this).css("border-color", "red")},
+                                dragleave: function(e){$(this).css("border-color", "blue")},
+                                group: "photo",
+                                drop: function(e){
+                                                                
+                                            var deviceName = $(e.dropTarget).data("name");
+                                            var deviceType = $(e.dropTarget).data("type");
+                                            var actionMask = $(e.dropTarget).data("mask");
+                                                                
+                                            var contentName = $(e.draggable.element).data("name");
+                                            var content = contents[contentName];
+                                                                
+                                            var action = properties[deviceType].actions[actionMask];
+                                            var classname = deviceName + "_" + actionMask;
+                                                                
+                                            for(j = 0; j<action.keys.length; j++){
+                                                var value = content[action.keys[j]];
+                                                var c = classname + "_" + action.keys[j];
+                                                                console.log(c);
+                                                                console.log(value);
+                                                ($("." + c)).val(value);
+                                                                
+                                            }
+                                       
+                                    
+                                }
+                            });
+                            
+                            
+                            $(".dragevent"+name).kendoDraggable({
+                                                           hint: function(element) {
+                                                                var cloned = $(element).clone();
+                                                                return cloned;
+                                                           },
+                                                           group: "events",
+                                                           dragstart: function(e){},
+                                                           dragend: function (){}
+                                                           });
+                        }
+                        
+                        
+                        function processRules(){
+                            var i;
+                            for(i = 0 ;i < rules.length; i++){
+                                var rule = rules[i];
+                                if(!rule.active) continue;
+                                
+                                
+                                rule.envFunction();
+                                //rule.setupFunction();
+                                rule.loopFunction();
+                                
+                            }
+                            
+                             //eval($("#cond").val());
+                        }
+                   
+                        
+                        function processClick(e){
+                            
+                            
+                            if(e.data("cmd") == "listen"){
+                                network.addEventListener(e.data("name"), e.data("mask"), xplistener);
+                            }
+                            
+                            else if(e.data("cmd") == "chart"){
+                                openChart(e.data("name"), e.data("type"), e.data("ea_name"), e.data("mask"));
+                            }
+                            
+                            else if(e.data("cmd") == "sendAction"){
+                                sendAction(e.data("name"), e.data("type"), e.data("mask"));
+                            }
+                            
+                        }
+                        
+                        
+                        function sendAction(name, type, mask){
+                            
+                            var obj = properties[type];
+                            var actions = obj.actions;
+                            var classname = name + "_" + mask;
+                            
+                            var a = new Object();
+                            a["action_type"] = mask;
+                            
+                            var action = actions[mask];
+                            for(j = 0; j<action.keys.length; j++){
+                                var c = classname + "_" + action.keys[j];   
+                                var v =  ($("." + c)).val();
+                                a[action.keys[j]] = v;
+                            }
+                            //console.log(a);
+                            network.sendAction(name, a);
+                        }     
+                        
+                        var display = false;
+                        
+                        xplistener = function(xpEvent){
+                            
+                            //console.log(xpEvent)
+                            var name  = xpEvent["sender_name"];
+                            var type = xpEvent["sender_type"];
+                            
+                            var mask = xpEvent["__event_type"];
+                            
+                            devices[name].events[mask] = xpEvent;
+                            
+                            var classname = name + "_" + mask;
+                            
+                            var obj = properties[type];
+                            var events = obj.events;
+                            
+                            var event = events[mask];
+                            
+                            for(j = 0; j<event.keys.length; j++){
+                                var c = classname + "_" + event.keys[j];
+                                var value = xpEvent[event.keys[j]];
+                                if(event.options  && (event.keyoptions[event.keys[j]].type=='number' || event.keyoptions[event.keys[j]].type=='range' ))
+                                                value = parseInt(value);
+                                ($("." + c)).val(value);
+                            }
+                            
+                            
+                            if($("#chart_" + name + "_" + mask).length > 0){
+                                var data = $("#chart_" + name + "_" + mask).data("array");
+                                var chart = $("#chart_" + name + "_" + mask).data("chart");
+                                var options = $("#chart_" + name + "_" + mask).data("options");
+                        
+                                var d = new Date();
+                                if(data.getNumberOfRows() > 10)  data.removeRow(0);
+                                
+                                
+                                var a = new Array();
+                                a[0] = d.getTime() / 1000 - initTime;
+                                for(j = 0; j<event.keys.length; j++) {
+                                    a[j + 1] = parseInt(xpEvent[event.keys[j]]);                   
+                                }
+                                data.addRow(a);
+                                chart.draw(data, options);
+                            }
+                            
+                            
+                            processRules();
+                           
+
+                            
+                        }
+                        
+                        
+                        xpannouncelistener = function(xpAnnounce){
+                            //console.log(xpAnnounce);
+                            var name = xpAnnounce["device_name"];
+                            var type = xpAnnounce["device_type"]; //usefull for icons
+                            
+                            if(xpAnnounce["status"] == "Dead"){
+                                if(devices[name]  == null){
+                                }
+                                else{
+                                    var panelBar = $("#menu").data("kendoPanelBar");
+                                    panelBar.remove("#"+name);
+                                    delete devices[name];
+                                    
+                                    $("#win_" + name).data("kendoWindow").close();
+                                    
+                                }
+                                
+                            }
+                            else{
+                                if(devices[name]  == null) {
+                                    
+                                    if(xpAnnounce["device_properties"]){
+                                       properties[type] = JSON.parse(xpAnnounce["device_properties"]);
+                                        console.log(properties[type]);
+                                    }
+                                    
+                                    var panelBar = $("#menu").data("kendoPanelBar");
+                                    panelBar.append({ 
+                                                    id: name,
+                                                    text: "<span id='" + name + "'>" +  name + "</span>",
+                                                    encoded: false,    
+                                                    cssClass: "Device"
+                                                    });
+                                                    
+                                                    
+                                                    $(".Device").kendoDraggable({
+                                                        hint: function(element) {
+                                                        var cloned = $(element).clone();
+                                                        return cloned;
+                                                        },
+                                                        group: "device",
+                                                        dragstart: function(){},
+                                                        dragend: function (){}
+                                                        });
+                                                        
+                                                        devices[name] = new Object();
+                                                        devices[name].descriptor = xpAnnounce;
+                                                        devices[name].events = new Object();
+                                                        devices[name].actions = new Object();
+                                                        
+                                }
+                            }
+                        }
+                        
+                        
+                        xpactionlistener = function(xpAction){
+                            if(xpAction["action_type"] == 1){
+                                addContent(xpAction["URL"]);
+                            }
+                        }
+                        
+                        
+                        function addContent(url){
+                            var str = "<img src='" + url + "'/>";
+                            var win =  $("<div class='optWin'>" +  str + "</div>").appendTo("#desktop").kendoWindow({
+                                    width: "600px",
+                                    title: "New content",
+                                    position: {
+                                    top:  5,
+                                    left: 200
+                                    },
+                                    animation: {
+                                    open: {
+                                    effects: "fade:in"
+                                    },
+                                    close: {
+                                    effects: "fade:out"
+                                    }
+                                    },
+                                    resizable: true,
+                                    actions: [ "Minimize", "Maximize", "Close" ],
+                                    close: function(){       
+                                    //console.log($(this));                         
+                                    }
+                                    });
+                                    
+                        }
+                        
+                        
+                        var network ;
+                        network = new  xpNetwork();
+                            
+                        
+                        var d = new Date();
+                        var initTime = d.getTime() / 1000;
+                        
+                        function xpReady(){
+                            network.publish("XPMonitor", "XP_MONITOR");
+                            network.addAnnounceListener(xpannouncelistener);
+                            network.addActionListener(xpactionlistener);
+                            startDeviceOrientation(network, function(){});
+                            
+                        }
+                        
+                        
+                        
+                        
+                        function openChart (name, type, ea_name, mask) {
+                            
+                            var winid = "chart_" + name + "_" + mask;
+                            
+                            if($("#" + winid).length > 0) {
+                                $("#" + winid).data("kendoWindow").open();
+                                return;
+                            }
+                            var chaid = "gchart_" + name + "_" + mask;
+                            var str = "<div id='" + chaid +  "' style='width: 500px; height: 200px;'></div>";
+                            var win =  $("<div id='" + winid + "' class='optWin " + name + " '>" +  str + "</div>").appendTo("#desktop").kendoWindow({
+                                             width: "600px",
+                                             height: "300px",
+                                             title: name,
+                                             position: {
+                                             top:  100,
+                                             left:  200
+                                             },
+                                             animation: {
+                                             open: {
+                                             effects: "fade:in"
+                                             },
+                                             close: {
+                                             effects: "fade:out"
+                                             }
+                                             },
+                                             resizable: true,
+                                             actions: [ "Minimize", "Maximize", "Close" ],
+                                             close: function(){                                
+                                             
+                                             
+                                             }
+                                 });
+                                 
+                             
+                             var data = new google.visualization.DataTable();
+                             
+                             var event = properties[type].events[mask];
+                             data.addColumn('number', "Time");  
+                             for(j = 0; j<event.keys.length; j++){
+                                 data.addColumn('number', event.keys[j]);
+                             }
+                             
+                             
+                             
+                             $("#chart_"  + name + "_" + mask).data("array", data);
+                             
+                             options = {
+                                 title: name + ": " + ea_name
+                             };
+                             
+                             var chart = new google.visualization.LineChart(document.getElementById(chaid));
+                             //var chart = new google.visualization.BubbleChart(document.getElementById(chaid));
+                             chart.draw(data, options);
+                             
+                             $("#chart_"  + name + "_" + mask).data("chart", chart);
+                             $("#chart_"  + name + "_" + mask).data("options", options);
+                             
+                                                                                                                                                     
+                        }
+                        
+                        
+                            function randomString(length) {
+                                var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+                                
+                                if (! length) {
+                                    length = Math.floor(Math.random() * chars.length);
+                                }
+                                
+                                var str = '';
+                                for (var i = 0; i < length; i++) {
+                                    str += chars[Math.floor(Math.random() * chars.length)];
+                                }
+                                return str;
+                            }
+
+                        
+                        
+                            </script>
+                        
+                        
+                        </head>
+    <body>
+		<div id="desktop">
+			<div id="head">
+				<h1>xpMonitor</h1>
+				<div id="logos">
+                    <a href="http://www.crs4.it" target="new"><img src="./img/logo/crs4.png"></a>
+                    <a href="http://www.xplaces.org" target="new"><img src="./img/logo/xplaces.png"></a>
+				</div>
+			</div>	
+		</div>
+		<div style = "width:300px">
+            
+            <div id="devices" class="window">
+                <ul id="menu"></ul>
+            </div>
+            
+            
+            <div id="media" class="window">
+                <ul id="contents" ><li>Images</li></ul>
+            </div>
+            
+            
+            <div id="modules" class="window">
+                <ul id="modules_bar" ><li>Modules</li></ul>
+            </div>
+            
+            
+            
+            <div id='rule'>
+                <div id='composition' style='width:100%; height:50px'>pippo</div>
+                <textarea style='width:100%; height:200px' id='cond'>
+                    
+                    var a = new Object();
+                    a["action_type"] = 2;
+                    var b = devices.XPGenArduinoSensor.events[256];
+                    if(b.A0 > 100 ) {
+                        a.D13 = '1';
+                        
+                        network.sendAction("XPGenArduinoSensor", a);
+                    }else{
+                        a.D13 = '0';
+                        network.sendAction("XPGenArduinoSensor", a);
+                    }
+                    
+                    
+                    if(name == "XPGenArduinoSensor" && mask == 256)
+                    {
+                    if(xpEvent["A0"] >= 100 && !display) {
+                    var a = new Object();
+                    a["action_type"] = 16;
+                    
+                    a["NAME"]="Ard_image";
+                    a["URL"] = "http://www.wimove.it/img/banner-cagliari.jpg";
+                    
+                    console.log(a);
+                    network.sendAction("xpDesktop", a);
+                    
+                    display = true;
+                    
+                    } else if(xpEvent["A0"] < 100 && display)
+                        
+                        {
+                        var a = new Object();
+                        a["action_type"] = 2048;
+                        
+                        a["NAME"]="Ard_image";
+                        
+                        console.log(a);
+                        network.sendAction("xpDesktop", a);
+                        
+                        
+                        display = false;
+                        }
+                        }
+                        </textarea>
+                        </div>
+            </body>
+    
+</html>

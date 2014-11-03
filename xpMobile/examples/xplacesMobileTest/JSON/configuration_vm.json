@@ -1,0 +1,15 @@
+{
+	"netconf": {
+		"basePort": 4450,
+        "xPlacesServerIPPort" : "http://10.211.55.4:4450",
+		"localIP" : "10.211.55.4",
+        "httpPort" : 8080
+	},
+	"args": {
+		"verbose" : true
+    },
+    "proxy": {
+        "forward": false,
+        "xPlacesProxyIPPort": "ws://10.211.55.4:8090"
+    }
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        
+        <script>
+            
+            console.log("log");
+            
+            xplistener = function(xpEvent){
+                
+                var temp1 = parseInt(xpEvent["A0"]);
+                var temp2 = parseInt(xpEvent["A1"]);
+                var d = new Date();
+                if(data.getNumberOfRows() > 10)  data.removeRow(0);
+                data.addRow([d.getTime() / 1000 - initTime, temp1, temp2]);
+                chart.draw(data, options);
+                
+                console.log("xpEvent");
+            }
+        
+        
+        xpannouncelistener = function(xpAnnounce){
+            console.log("xpAnnounce");
+        }
+        
+        
+        var network ;
+        var led = 0;
+        network = new  xpNetwork();
+        
+        var chart;
+        var data;
+        var options;
+        
+        var d = new Date();
+        var initTime = d.getTime() / 1000;
+        
+        function xpReady(){
+            
+            console.log("xpReady");
+            
+            //network.publish("MyName", "MyType");
+            network.addEventListener("XPGenArduinoSensor", 256, xplistener);
+            network.addAnnounceListener(xpannouncelistener);
+            
+        }
+        
+        console.log("log");
+        
+        function toggleLed(){
+            var action = new Object();
+            led = 1-led;
+            action["D13"] = led;
+            
+            action["__action_type"] = 2;
+            network.sendAction("XPGenArduinoSensor", action);
+            
+        }
+        
+        google.load("visualization", "1", {packages:["corechart"]});
+        
+        google.setOnLoadCallback(drawChart);
+        
+        
+        function drawChart() {
+            data = google.visualization.arrayToDataTable([
+                                                          ['Seconds', 'Sensor1', 'Sensor2'],
+                                                          [0,  0,      0],
+                                                          
+                                                          ]);
+                                                          
+                                                          
+                                                          options = {
+                                                              title: 'Temperature'
+                                                          };
+                                                          
+                                                          chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+                                                          
+        }
+        
+        
+            </script>
+        
+        
+    </head>
+    
+    <body>
+        
+        
+        <button onclick='toggleLed();'>RED</button>
+        
+        <div id="chart_div" style="width: 900px; height: 500px;"></div>
+        
+    </body>    
+    
+</html>

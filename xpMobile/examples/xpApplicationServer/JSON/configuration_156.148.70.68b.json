@@ -1,0 +1,15 @@
+{
+	"netconf": {
+		"basePort": 6555,
+        "xPlacesServerIPPort" : "http://156.148.70.68:4444",
+		"localIP" : "156.148.70.68",
+        "httpPort" : 8080
+	},
+	"args": {
+		"verbose" : true
+    },
+    "proxy": {
+        "forward": true,
+        "xPlacesProxyIPPort": "ws://156.148.70.68:8080"
+    }
+}

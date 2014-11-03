@@ -1,0 +1,11 @@
+{
+	"netconf": {
+		"basePort": 5555,
+		"xPlacesServerIPPort" : "http://156.148.70.68:5555",
+		"localIP" : "156.148.70.68",
+        "httpPort" : 8081
+	},
+	"args": {
+		"verbose" : true
+	}
+}

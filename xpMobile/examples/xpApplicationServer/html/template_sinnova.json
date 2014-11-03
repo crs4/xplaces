@@ -1,0 +1,10 @@
+sinnova2014cb({
+"username": "<<name>>",
+"mysinnova":[
+
+  	{% for x in folder %}
+  			"<<x.id>>"
+  			{% if !loop.last %},{% endif %}
+	{% endfor %}
+]
+})

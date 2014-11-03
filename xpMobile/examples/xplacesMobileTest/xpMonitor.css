@@ -1,0 +1,61 @@
+html,body{
+    height:100%;
+    margin:0;
+    overflow:hidden;
+}
+
+#head{
+    height: 80px;
+    background-image: linear-gradient(bottom, rgb(148,193,210) 0%, rgb(0,62,89) 80%);
+    background-image: -o-linear-gradient(bottom, rgb(148,193,210) 0%, rgb(0,62,89) 80%);
+    background-image: -moz-linear-gradient(bottom, rgb(148,193,210) 0%, rgb(0,62,89) 80%);
+    background-image: -webkit-linear-gradient(bottom, rgb(148,193,210) 0%, rgb(0,62,89) 80%);
+    background-image: -ms-linear-gradient(bottom, rgb(148,193,210) 0%, rgb(0,62,89) 80%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(148,193,210)),
+        color-stop(0.8, rgb(0,62,89))
+        );
+    border-bottom: 1px solid rgb(0,62,89);
+}
+
+#head h1 { 
+    font-family: 'Port Lligat Slab', serif;
+    text-shadow: 2px 2px 2px rgba(150, 150, 150, 1);
+    font-weight: 700; 
+    color: white;
+    margin-left: 10px;
+    padding-top: -10px;
+    letter-spacing: 1px;
+    font-size: 55px;
+    float: left;
+}
+#head #logos { 
+    float: right;
+    margin-right: 20px;
+    margin-top: 8px;
+    padding: 1px 10px;
+    background-color: rgba(255,255,255,0.95);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid rgb(0,62,89);
+}
+#head #logos img{
+    -moz-transform:scale(0.8);
+    -webkit-transform:scale(0.8);
+    transform:scale(0.8);
+}
+#desktop{    
+    width:100%;
+    height:100%;
+    margin:0 auto;
+    background-color: #f8f8f8;
+    background-image:url('./img/busBUG.png');
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    background-position:bottom right; 
+}

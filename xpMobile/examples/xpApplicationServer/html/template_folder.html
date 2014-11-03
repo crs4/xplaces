@@ -1,0 +1,47 @@
+
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html>
+    <head>
+        <title>Sinnova 2014</title>
+        <script src="js/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="js/xplacesClientLib.js"></script>
+        <script type="text/javascript" src="js/jquery-cookie-master/jquery.cookie.js"></script>
+        <script src="js/bootstrap/js/bootstrap.min.js"></script>
+        <script src="js/jquery-mobile/jquery.mobile-1.4.2.min.js"></script>
+        <script src="js/jquery.tmpl.min.js"></script>
+        
+        <link href="js/jquery-mobile/jquery.mobile-1.4.2.min.css" rel="stylesheet">
+   
+        <!--link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet"-->
+        <link href="css/Sinnova.css" rel="stylesheet">
+    </head>
+	<body>
+	
+	<div id="folder" class="ui-content" data-role="page">
+                <ul id='bouquet' data-role="listview" data-inset="true"  data-autodividers="false">
+        
+{% for x in folder %}
+  			<li><a href="#company_<<x.id>>" data-transition='slide' ><img class='img-circle' src='<<x.logo>>' > <h2> <<x.nome>> </h2> </a></li>
+{% endfor %}
+
+
+				</ul>
+	</div>
+		
+  			
+{% for x in folder %}		
+  		   <div data-role="page" id="company_<<x.id>>" >
+           <div data-role="header">
+           <a href="#sinnova" data-rel="back" class="ui-btn ui-btn-left ui-alt-icon ui-nodisc-icon ui-corner-all ui-btn-icon-notext ui-icon-carat-l">Back</a>
+           <h1><<x.nome>></h1>
+           </div>
+           <div role="main" class="ui-content"><img class='img-circle' src='<<x.logo>>'><h2><<x.nome>></h2></div>
+           </div>
+{% endfor %}
+
+		
+                    
+                
+            
+    </body>
+</html>
